@@ -1,0 +1,12 @@
+/.idea/
+target/
+/test-dbs/*-*
+/test-dbs/databases.properties
+*.log
+*.iml
+*.pyc
+/\.target/
+/\.cache
+/\.project
+/\.classpath
+/\.settings/
