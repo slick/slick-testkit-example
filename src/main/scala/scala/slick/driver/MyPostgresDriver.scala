@@ -29,9 +29,12 @@ trait MyPostgresDriver extends ExtendedDriver { driver =>
     - BasicProfile.capabilities.typeBlob
   )
 
-  override def mapTypeName(tmd: TypeMapperDelegate[_]): String = tmd.sqlType match {
+  override def defaultSqlTypeName(tmd: TypeMapperDelegate[_]): String = tmd.sqlType match {
     case java.sql.Types.DOUBLE => "DOUBLE PRECISION"
-    case _ => super.mapTypeName(tmd)
+    /* PostgreSQL does not have a TINYINT type, so we use SMALLINT instead. */
+    case java.sql.Types.TINYINT => "SMALLINT"
+    case java.sql.Types.BLOB => "BYTEA"
+    case _ => super.defaultSqlTypeName(tmd)
   }
 
   class QueryBuilder(input: QueryBuilderInput) extends super.QueryBuilder(input) {
@@ -64,13 +67,6 @@ trait MyPostgresDriver extends ExtendedDriver { driver =>
   }
 
   class TypeMapperDelegates extends super.TypeMapperDelegates {
-    /* PostgreSQL does not have a TINYINT type, so we use SMALLINT instead. */
-    override val byteTypeMapperDelegate = new ByteTypeMapperDelegate {
-      override def sqlTypeName = "SMALLINT"
-    }
-    override val byteArrayTypeMapperDelegate = new ByteArrayTypeMapperDelegate {
-      override val sqlTypeName = "BYTEA"
-    }
     override val uuidTypeMapperDelegate = new UUIDTypeMapperDelegate {
       override def setValue(v: UUID, p: PositionedParameters) = p.setObject(v, sqlType)
       override def setOption(v: Option[UUID], p: PositionedParameters) = p.setObjectOption(v, sqlType)
