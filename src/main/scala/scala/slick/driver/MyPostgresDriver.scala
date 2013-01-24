@@ -68,7 +68,20 @@ trait MyPostgresDriver extends ExtendedDriver { driver =>
   }
 
   class TypeMapperDelegates extends super.TypeMapperDelegates {
-    override val uuidTypeMapperDelegate = new UUIDTypeMapperDelegate {
+    override val byteArrayTypeMapperDelegate = new ByteArrayTypeMapperDelegate
+    override val uuidTypeMapperDelegate = new UUIDTypeMapperDelegate
+
+    class ByteArrayTypeMapperDelegate extends super.ByteArrayTypeMapperDelegate {
+      override val sqlType = java.sql.Types.BINARY
+      override val sqlTypeName = "BYTEA"
+      override def setOption(v: Option[Array[Byte]], p: PositionedParameters) = v match {
+        case Some(a) => p.setBytes(a)
+        case None => p.setNull(sqlType)
+      }
+    }
+
+    class UUIDTypeMapperDelegate extends super.UUIDTypeMapperDelegate {
+      override def sqlTypeName = "UUID"
       override def setValue(v: UUID, p: PositionedParameters) = p.setObject(v, sqlType)
       override def setOption(v: Option[UUID], p: PositionedParameters) = p.setObjectOption(v, sqlType)
       override def nextValue(r: PositionedResult) = r.nextObject().asInstanceOf[UUID]

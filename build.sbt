@@ -2,17 +2,17 @@ name := "Slick-TestKit-Example"
 
 organizationName := "Typesafe"
 
-organization := "com.typesafe"
+organization := "com.typesafe.slick"
 
-version := "1.0.0-SNAPSHOT"
+version := "1.0.0-RC2"
 
-scalaVersion := "2.10.0-M7"
+scalaVersion := "2.10.0"
 
-scalaBinaryVersion in Global := "2.10.0-M7"
+//scalaBinaryVersion in Global := "2.10.0"
 
 libraryDependencies ++= Seq(
-  "com.typesafe" %% "slick" % "1.0.0-SNAPSHOT",
-  "com.typesafe" %% "slick-testkit" % "1.0.0-SNAPSHOT" % "test",
+  "com.typesafe.slick" %% "slick" % "1.0.0-RC2",
+  "com.typesafe.slick" %% "slick-testkit" % "1.0.0-RC2" % "test",
   "com.novocode" % "junit-interface" % "0.10-M1" % "test",
   "ch.qos.logback" % "logback-classic" % "0.9.28" % "test",
   "postgresql" % "postgresql" % "9.1-901.jdbc4" % "test"
