@@ -22,5 +22,6 @@ mypostgres.password = secret
 mypostgres.adminDB = postgres
 mypostgres.testDB = slick-test
 mypostgres.create = CREATE TABLESPACE slick_test LOCATION '[DBPATH]'; CREATE DATABASE "[DB]" TEMPLATE = template0 TABLESPACE slick_test
+mypostgres.postCreate = create extension lo
 mypostgres.drop = DROP DATABASE IF EXISTS "[DB]"; DROP TABLESPACE IF EXISTS slick_test
 mypostgres.driver = org.postgresql.Driver
