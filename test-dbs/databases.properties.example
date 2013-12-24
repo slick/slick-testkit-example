@@ -9,7 +9,7 @@
 #testDBs = mypostgres
 
 # Store database files in this path instead of the test-dbs dir
-testDir = r:/test-dbs
+# testDir = r:/test-dbs
 
 # PostgreSQL quick setup:
 # - Install PostgreSQL server with default options
