@@ -1,0 +1,81 @@
+<html>
+<head>
+    <title>Slick TestKit Example - Activator Template</title>
+</head>
+<body>
+
+<div>
+    <h2>Slick TestKit</h2>
+    
+    <p>When you write your own database driver for Slick, you need a way to run all the standard unit tests on it (in addition to any custom tests you may want to add) to ensure that it works correctly and does not claim to support any capabilities which are not actually implemented. For this purpose the Slick unit tests have been factored out into a separate <em>Slick TestKit</em> project.</p>
+
+    <p>This template contains a copy of Slick's standard PostgreSQL driver and all the infrastructure required to build and test it from its own sbt / Activator project.</p>
+</div>
+
+<div>
+    <h2>Scaffolding</h2>
+
+    <p>The <a href="#code/build.sbt" class="shortcut">build.sbt</a> file is straight-forward. Apart from the usual name and version settings, it adds the dependencies for Slick, the TestKit, junit-interface, Logback and the PostgreSQL JDBC driver, and it sets some options for the test runs.</p>
+
+    <p>There is a copy of Slick's logback configuration in <a href="#code/src/test/resources/logback-test.xml" class="shortcut">logback-test.xml</a> but you can swap out the logging framework if you prefer a different one.</p>
+</div>
+
+<div>
+    <h2>Driver</h2>
+
+    <p>The actual driver implementation can be found in <a href="#code/src/main/scala/scala/slick/driver/MyPostgresDriver.scala" class="shortcut">MyPostgresDriver.scala</a>. It is a copy of Slick's <code>PostgresDriver</code> which has been renamed to <code>MyPostgresDriver</code>.</p>
+</div>
+
+<div>
+    <h2>Test Harness</h2>
+
+    <p>In order to run the TestKit tests, you need to add a class that extends <code>DriverTest</code>, plus an implementation of <code>TestDB</code> which tells the TestKit how to connect to a test database, get a list of tables, clean up between tests, etc.</p>
+
+    <p>In the case of the PostgreSQL test harness in <a href="#code/src/test/scala/scala/slick/driver/test/MyPostgresTest.scala" class="shortcut">MyPostgresTest.scala</a> most of the default implementations can be used out of the box. Only <code>getLocalTables</code> and <code>getLocalSequences</code> require custom implementations. We also modify the driver's <em>capabilities</em> to indicate that our driver is capable of running the standard <em>Plain SQL</em> tests:</p>
+
+    <code><pre>@RunWith(classOf[Testkit])
+class MyPostgresTest extends DriverTest(MyPostgresTest.tdb)
+
+object MyPostgresTest {
+  def tdb(cname: String) = new ExternalTestDB("mypostgres", MyPostgresDriver) {
+    override def getLocalTables(implicit session: Session) = ...
+    override def getLocalSequences(implicit session: Session) = ...
+    override lazy val capabilities = ...
+  }
+}</pre></code>
+
+    <p>The name of a configuration prefix, in this case <code>mypostgres</code>, is passed to <code>ExternalTestDB</code>:</p>
+
+    <code><pre>def tdb(cname: String) =
+  new ExternalTestDB("mypostgres", MyPostgresDriver) ...</pre></code>
+</div>
+
+<div>
+    <h2>Database Configuration</h2>
+
+    <p>Since the PostgreSQL test harness is based on <code>ExternalTestDB</code>, it needs to be configured in <a href="#code/test-dbs/databases.properties" class="shortcut">databases.properties</a>. In order to run the tests, you need a PostgreSQL server with an account which allows you to create tablespaces and databases. Enter the user name and password in the configuration (and don't forget to save the file):</p>
+
+    <code><pre>mypostgres.user = postgres
+mypostgres.password = secret</pre></code>
+
+    <p>If you installed PotgreSQL on OSX with Homebrew, this should be your own user name and an empty password. For a standard PostgreSQL installation on Windows, use the credentials you entered in the installer.</p>
+</div>
+
+<div>
+    <h2>Run the Tests</h2>
+    
+    <p>You can run the tests on the <a href="#test" class="shortcut">Test</a> page (or with <code>sbt test</code> on the command line). sbt discovers the JUnit test <a href="#code/src/test/scala/scala/slick/driver/test/MyPostgresTest.scala" class="shortcut">MyPostgresTest</a> and runs it with TestKit's JUnit runner. This in turn causes the database to be set up through the test harness and all tests which are applicable for the driver (as determined by the <code>capabilities</code> setting in the test harness) to be run.</p>
+
+    <p><em>Note:</em> When running the tests here in Activator (as of version 1.1.3), you will only see a single-line summary of the passed tests in <a href="#test" class="shortcut">Test</a> and you may not get a proper test report at all when a test fails. You can switch to <a href="#compile" class="shortcut">Compile</a> for the complete log output that shows the individual tests.</p>
+</div>
+
+<div>
+    <h2>Next Steps</h2>
+
+    <p>Check out the full <a href="http://slick.typesafe.com/doc/2.0.2/" target="_blank">Slick manual and API docs</a>.</p>
+
+    <p>You can also find more Slick templates, contributed by both, the Slick team and the community, <a href="/home" class="shortcut">here in Activator</a>.</p>
+</div>
+
+</body>
+</html>

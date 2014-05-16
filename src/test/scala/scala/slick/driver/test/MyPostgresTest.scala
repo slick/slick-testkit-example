@@ -15,13 +15,16 @@ object MyPostgresTest {
     type Driver = MyPostgresDriver.type
     val driver = MyPostgresDriver
     override def getLocalTables(implicit session: profile.Backend#Session) = {
-      val tables = ResultSetInvoker[(String,String,String, String)](_.conn.getMetaData().getTables("", "public", null, null))
+      val tables = ResultSetInvoker[(String,String,String, String)](
+        _.conn.getMetaData().getTables("", "public", null, null))
       tables.list.filter(_._4.toUpperCase == "TABLE").map(_._3).sorted
     }
     override def getLocalSequences(implicit session: profile.Backend#Session) = {
-      val tables = ResultSetInvoker[(String,String,String, String)](_.conn.getMetaData().getTables("", "public", null, null))
+      val tables = ResultSetInvoker[(String,String,String, String)](
+        _.conn.getMetaData().getTables("", "public", null, null))
       tables.list.filter(_._4.toUpperCase == "SEQUENCE").map(_._3).sorted
     }
-    override lazy val capabilities = driver.capabilities + TestDB.plainSql + TestDB.plainSqlWide
+    override lazy val capabilities =
+      driver.capabilities + TestDB.plainSql + TestDB.plainSqlWide
   }
 }

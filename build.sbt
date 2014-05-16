@@ -1,20 +1,19 @@
-name := "Slick-TestKit-Example"
+name := "slick-testkit-example"
 
-organizationName := "Typesafe"
+version := "1.0"
 
-organization := "com.typesafe.slick"
+scalaVersion := "2.10.4"
 
-version := "2.0.1"
-
-scalaVersion := "2.10.3"
-
-libraryDependencies ++= Seq(
-  "com.typesafe.slick" %% "slick" % "2.0.1",
-  "com.typesafe.slick" %% "slick-testkit" % "2.0.1" % "test",
+libraryDependencies ++= List(
+  "com.typesafe.slick" %% "slick" % "2.0.2",
+  "com.typesafe.slick" %% "slick-testkit" % "2.0.2" % "test",
   "com.novocode" % "junit-interface" % "0.10" % "test",
   "ch.qos.logback" % "logback-classic" % "0.9.28" % "test",
   "postgresql" % "postgresql" % "9.1-901.jdbc4" % "test"
 )
+
+// Disable all other test frameworks to silence the warnings in Activator
+testFrameworks := Seq(new TestFramework("com.novocode.junit.JUnitFramework"))
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-s", "-a")
 

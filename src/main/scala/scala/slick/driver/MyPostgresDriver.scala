@@ -6,15 +6,14 @@ import scala.slick.jdbc.{PositionedParameters, PositionedResult}
 import scala.slick.ast.{SequenceNode, Library, FieldSymbol, Node}
 import scala.slick.util.MacroSupport.macroSupportInterpolation
 import scala.slick.compiler.CompilerState
-import scala.slick.model.Model
-import scala.slick.jdbc.meta.{MTable,createModel => jdbcCreateModel}
+import scala.slick.jdbc.meta.MTable
 import scala.slick.jdbc.UnitInvoker
 
 /**
  * Slick driver for PostgreSQL.
  *
  * This driver implements all capabilities of the
- * [[scala.slick.driver.JdbcProfile]].
+ * [[scala.slick.driver.ExtendedProfile]].
  *
  * Notes:
  *
@@ -25,6 +24,8 @@ import scala.slick.jdbc.UnitInvoker
  *   <code>lo_manage</code>, both of which are provided by the "lo"
  *   extension in PostgreSQL.</li>
  * </ul>
+ *
+ * @author szeiger
  */
 trait MyPostgresDriver extends JdbcDriver { driver =>
 
@@ -93,7 +94,7 @@ trait MyPostgresDriver extends JdbcDriver { driver =>
 
     def dropLobTrigger(tname: String): Option[String] =
       if(sqlType == "lo") Some(
-        "drop trigger "+lobTrigger(tname)
+        "drop trigger "+lobTrigger(tname)+" on "+quoteIdentifier(tname)
       ) else None
   }
 
@@ -122,4 +123,4 @@ trait MyPostgresDriver extends JdbcDriver { driver =>
   }
 }
 
-object MyPostgresDriver extends MyPostgresDriver
+object MyPostgresDriver extends PostgresDriver
