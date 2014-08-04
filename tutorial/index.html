@@ -31,36 +31,39 @@
 
     <p>In order to run the TestKit tests, you need to add a class that extends <code>DriverTest</code>, plus an implementation of <code>TestDB</code> which tells the TestKit how to connect to a test database, get a list of tables, clean up between tests, etc.</p>
 
-    <p>In the case of the PostgreSQL test harness in <a href="#code/src/test/scala/scala/slick/driver/test/MyPostgresTest.scala" class="shortcut">MyPostgresTest.scala</a> most of the default implementations can be used out of the box. Only <code>getLocalTables</code> and <code>getLocalSequences</code> require custom implementations. We also modify the driver's <em>capabilities</em> to indicate that our driver is capable of running the standard <em>Plain SQL</em> tests:</p>
+    <p>In the case of the MyPostgreSQL test harness in <a href="#code/src/test/scala/scala/slick/driver/test/MyPostgresTest.scala" class="shortcut">MyPostgresTest.scala</a> most of the default implementations can be used out of the box. Only <code>getLocalTables</code> and <code>getLocalSequences</code> require custom implementations. We also modify the driver's <em>capabilities</em> to indicate that our driver does not support the JDBC <em>getFunctions</em> call:</p>
 
     <code><pre>@RunWith(classOf[Testkit])
 class MyPostgresTest extends DriverTest(MyPostgresTest.tdb)
 
 object MyPostgresTest {
-  def tdb(cname: String) = new ExternalTestDB("mypostgres", MyPostgresDriver) {
-    override def getLocalTables(implicit session: Session) = ...
-    override def getLocalSequences(implicit session: Session) = ...
-    override lazy val capabilities = ...
+  def tdb = new ExternalJdbcTestDB("mypostgres") {
+    val driver = MyPostgresDriver
+    override def getLocalTables(implicit session: profile.Backend#Session) = ...
+    override def getLocalSequences(implicit session: profile.Backend#Session) = ...
+    override def capabilities = ...
   }
 }</pre></code>
 
-    <p>The name of a configuration prefix, in this case <code>mypostgres</code>, is passed to <code>ExternalTestDB</code>:</p>
+    <p>The name of a configuration prefix, in this case <code>mypostgres</code>, is passed to <code>ExternalJdbcTestDB</code>:</p>
 
-    <code><pre>def tdb(cname: String) =
-  new ExternalTestDB("mypostgres", MyPostgresDriver) ...</pre></code>
+    <code><pre>def tdb =
+  new ExternalJdbcTestDB("mypostgres") ...</pre></code>
 </div>
 
 <div>
     <h2>Database Configuration</h2>
 
-    <p>Since the PostgreSQL test harness is based on <code>ExternalTestDB</code>, it needs to be configured in <a href="#code/test-dbs/databases.properties" class="shortcut">databases.properties</a>. In order to run the tests, you need a PostgreSQL server with an account which allows you to create tablespaces and databases. Enter the user name and password in the configuration (and don't forget to save the file):</p>
+    <p>Since the PostgreSQL test harness is based on <code>ExternalJdbcTestDB</code>, it needs to be configured in <a href="#code/test-dbs/testkit.conf" class="shortcut">testkit.conf</a>. In order to run the tests, you need a PostgreSQL server with an account which allows you to create tablespaces and databases. Enter the user name and password in the configuration (and don't forget to save the file):</p>
 
-    <code><pre>mypostgres.user = postgres
+    <code><pre>mypostgres.enabled = true
+mypostgres.user = myuser
 mypostgres.password = secret</pre></code>
 
     <p>If you installed PotgreSQL on OSX with Homebrew, this should be your own user name and an empty password. For a standard PostgreSQL installation on Windows, use the credentials you entered in the installer.</p>
-</div>
 
+    <p>There are several other configuration options that need to be set for an <code>ExternalJdbcTestDB</code>. These are defined with suitable defaults in <a href="#code/src/test/resources/testkit-reference.conf" class="shortcut">testkit-reference.conf</a> so that <a href="#code/test-dbs/testkit.conf" class="shortcut">testkit.conf</a> can be kept very simple in most cases.</p>
+</div>
 <div>
     <h2>Run the Tests</h2>
     
