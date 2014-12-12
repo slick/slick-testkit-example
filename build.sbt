@@ -2,11 +2,9 @@ name := "slick-testkit-example"
 
 version := "1.0"
 
-scalaVersion := "2.11.2"
-
 libraryDependencies ++= List(
-  "com.typesafe.slick" %% "slick" % "2.1.0",
-  "com.typesafe.slick" %% "slick-testkit" % "2.1.0" % "test",
+  TypesafeLibrary.slick.value,
+  TypesafeLibrary.slickTestkit.value % "test",
   "com.novocode" % "junit-interface" % "0.10" % "test",
   "ch.qos.logback" % "logback-classic" % "0.9.28" % "test",
   "postgresql" % "postgresql" % "9.1-901.jdbc4" % "test"
