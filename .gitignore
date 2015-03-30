@@ -4,9 +4,11 @@
 /project/project/
 /project/target/
 /project/activator-*
+/project/typesafe.properties
 /logs/
 /RUNNING_PID
 *.iml
 *.pyc
 /test-dbs/*-*
 .DS_Store
+.sbtserver*

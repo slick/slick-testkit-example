@@ -23,7 +23,7 @@
 <div>
     <h2>Driver</h2>
 
-    <p>The actual driver implementation can be found in <a href="#code/src/main/scala/scala/slick/driver/MyPostgresDriver.scala" class="shortcut">MyPostgresDriver.scala</a>. It is a copy of Slick's <code>PostgresDriver</code> which has been renamed to <code>MyPostgresDriver</code>.</p>
+    <p>The actual driver implementation can be found in <a href="#code/src/main/scala/slick/driver/MyPostgresDriver.scala" class="shortcut">MyPostgresDriver.scala</a>. It is a copy of Slick's <code>PostgresDriver</code> which has been renamed to <code>MyPostgresDriver</code>.</p>
 </div>
 
 <div>
@@ -31,24 +31,24 @@
 
     <p>In order to run the TestKit tests, you need to add a class that extends <code>DriverTest</code>, plus an implementation of <code>TestDB</code> which tells the TestKit how to connect to a test database, get a list of tables, clean up between tests, etc.</p>
 
-    <p>In the case of the MyPostgreSQL test harness in <a href="#code/src/test/scala/scala/slick/driver/test/MyPostgresTest.scala" class="shortcut">MyPostgresTest.scala</a> most of the default implementations can be used out of the box. Only <code>getLocalTables</code> and <code>getLocalSequences</code> require custom implementations. We also modify the driver's <em>capabilities</em> to indicate that our driver does not support the JDBC <em>getFunctions</em> call:</p>
+    <p>In the case of the MyPostgreSQL test harness in <a href="#code/src/test/scala/slick/driver/test/MyPostgresTest.scala" class="shortcut">MyPostgresTest.scala</a> most of the default implementations can be used out of the box. Only <code>getLocalTables</code> and <code>getLocalSequences</code> require custom implementations. We also modify the driver's <em>capabilities</em> to indicate that our driver does not support the JDBC <em>getFunctions</em> call:</p>
 
-    <code><pre>@RunWith(classOf[Testkit])
+    <pre>@RunWith(classOf[Testkit])
 class MyPostgresTest extends DriverTest(MyPostgresTest.tdb)
 
 object MyPostgresTest {
   def tdb = new ExternalJdbcTestDB("mypostgres") {
     val driver = MyPostgresDriver
-    override def getLocalTables(implicit session: profile.Backend#Session) = ...
+    override def localTables(implicit ec: ExecutionContext): DBIO[Vector[String]] = ...
     override def getLocalSequences(implicit session: profile.Backend#Session) = ...
     override def capabilities = ...
   }
-}</pre></code>
+}</pre>
 
     <p>The name of a configuration prefix, in this case <code>mypostgres</code>, is passed to <code>ExternalJdbcTestDB</code>:</p>
 
-    <code><pre>def tdb =
-  new ExternalJdbcTestDB("mypostgres") ...</pre></code>
+    <pre>def tdb =
+  new ExternalJdbcTestDB("mypostgres") ...</pre>
 </div>
 
 <div>
@@ -56,9 +56,9 @@ object MyPostgresTest {
 
     <p>Since the PostgreSQL test harness is based on <code>ExternalJdbcTestDB</code>, it needs to be configured in <a href="#code/test-dbs/testkit.conf" class="shortcut">testkit.conf</a>. In order to run the tests, you need a PostgreSQL server with an account which allows you to create tablespaces and databases. Enter the user name and password in the configuration (and don't forget to save the file):</p>
 
-    <code><pre>mypostgres.enabled = true
+    <pre>mypostgres.enabled = true
 mypostgres.user = myuser
-mypostgres.password = secret</pre></code>
+mypostgres.password = secret</pre>
 
     <p>If you installed PotgreSQL on OSX with Homebrew, this should be your own user name and an empty password. For a standard PostgreSQL installation on Windows, use the credentials you entered in the installer.</p>
 
@@ -67,7 +67,7 @@ mypostgres.password = secret</pre></code>
 <div>
     <h2>Run the Tests</h2>
     
-    <p>You can run the tests on the <a href="#test" class="shortcut">Test</a> page (or with <code>sbt test</code> on the command line). sbt discovers the JUnit test <a href="#code/src/test/scala/scala/slick/driver/test/MyPostgresTest.scala" class="shortcut">MyPostgresTest</a> and runs it with TestKit's JUnit runner. This in turn causes the database to be set up through the test harness and all tests which are applicable for the driver (as determined by the <code>capabilities</code> setting in the test harness) to be run.</p>
+    <p>You can run the tests on the <a href="#test" class="shortcut">Test</a> page (or with <code>sbt test</code> on the command line). sbt discovers the JUnit test <a href="#code/src/test/scala/slick/driver/test/MyPostgresTest.scala" class="shortcut">MyPostgresTest</a> and runs it with TestKit's JUnit runner. This in turn causes the database to be set up through the test harness and all tests which are applicable for the driver (as determined by the <code>capabilities</code> setting in the test harness) to be run.</p>
 
     <p><em>Note:</em> When running the tests here in Activator (as of version 1.1.3), you will only see a single-line summary of the passed tests in <a href="#test" class="shortcut">Test</a> and you may not get a proper test report at all when a test fails. You can switch to <a href="#compile" class="shortcut">Compile</a> for the complete log output that shows the individual tests.</p>
 </div>
