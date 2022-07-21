@@ -13,4 +13,4 @@ logBuffered := false
 run / fork := true
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-s", "-a")
-libraryDependencies += "com.typesafe.slick" %% "slick-testkit" % "3.4.0-M1"
+libraryDependencies += "com.typesafe.slick" %% "slick-testkit" % "3.4.0-RC2"
