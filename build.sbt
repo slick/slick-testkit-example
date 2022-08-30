@@ -15,7 +15,7 @@ run / fork := true
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-s", "-a")
 libraryDependencies += "com.typesafe.slick" %% "slick-testkit" % "3.4.0"
 
-dependencyOverrides += "org.slf4j" % "slf4j-api" % "1.7.36"
+dependencyOverrides += "org.slf4j" % "slf4j-api" % "2.0.0"
 
 ThisBuild / githubWorkflowBuildPreamble +=
   WorkflowStep.Run(List("docker-compose up -d"), name = Some("Start database"))
