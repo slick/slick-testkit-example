@@ -3,7 +3,7 @@ import _root_.io.github.nafg.mergify.dsl._
 
 mergifyExtraConditions := Seq(
   (Attr.Author :== "scala-steward") ||
-    (Attr.Author :== "nafg-scala-steward[bot]") ||
+    (Attr.Author :== "slick-scala-steward[bot]") ||
     (Attr.Author :== "renovate[bot]")
 )
 
