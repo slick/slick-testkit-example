@@ -1,4 +1,4 @@
-import _root_.io.github.nafg.mergify.dsl._
+import _root_.io.github.nafg.mergify.dsl.*
 
 
 mergifyExtraConditions := Seq(
@@ -25,5 +25,6 @@ testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-s", "-a")
 libraryDependencies += "com.typesafe.slick" %% "slick-testkit" % "3.5.1"
 libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
 
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
 ThisBuild / githubWorkflowBuildPreamble +=
   WorkflowStep.Run(List("docker-compose up -d"), name = Some("Start database"))
