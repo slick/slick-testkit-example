@@ -27,4 +27,4 @@ libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
 ThisBuild / githubWorkflowBuildPreamble +=
-  WorkflowStep.Run(List("docker-compose up -d"), name = Some("Start database"))
+  WorkflowStep.Run(List("docker compose up -d"), name = Some("Start database"))
