@@ -40,7 +40,7 @@ jobs:
           cache: sbt
 
       - name: Start database
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Check that workflows are up to date
         run: sbt '++ ${{ matrix.scala }}' githubWorkflowCheck
