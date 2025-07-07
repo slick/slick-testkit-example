@@ -1,2 +1,35 @@
 This sample project is part of the Slick documentation.
 See https://scala-slick.org/docs/ for details.
+
+
+Things that might be missing for DuckDB:
+- foreign and primary key constraints:
+  - dropping them
+  - generally all "ALTER TABLE" statements in JdbcStatementBuilderComponent must be looked at
+- in-memory tests, but also file based db tests
+- Database creation factories
+
+- Implement DatabaseMetaData.getTypeInfo endpoint in DuckDB JDBC Driver
+- TODO "Check constraints" support
+
+- DuckDB returns -1 when no changes where made (like CREATE TABLE); slick assumes 0
+org.duckdb.DuckDBPreparedStatement.getUpdateCountInternal
+
+- summary of the main issues:
+  - alter table for key constraints not allowed
+  - duckdb validates key constraints at `create table` time, meaning the order of the table creation matters (since also
+    the constraints cannot be added after table has been created due to missing alter table)
+    sqlite also doesn't have alter statement, but it validates keys only at insert time.
+  - missing duckdb jdbc driver option for `setBlob` --> workaround
+  - missing duckdb jdbc driver implementation for getTypeInfo, getUDTs
+
+- Varchar length is not enforced -- docs recommend using check constraints instead.
+  TODO: automatically convert slick length requirements to a check constraint
+
+- TODO: UpsertBuilder, ModelBuilder, QueryBuilder and other things from Postgres profile; understand it and see
+        if necessary for DuckDB
+
+
+
+- TODO: select a license
+- TODO: write an actual Readme
