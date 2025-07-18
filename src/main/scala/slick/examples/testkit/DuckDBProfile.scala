@@ -1,5 +1,6 @@
 package slick.examples.testkit
 
+import slick.SlickException
 import slick.ast.*
 import slick.ast.ColumnOption.AutoInc
 import slick.basic.Capability
@@ -8,11 +9,11 @@ import slick.dbio.DBIO
 import slick.examples.testkit.DuckDBProfile.getBackingSequenceName
 import slick.jdbc.JdbcActionComponent.MultipleRowsPerStatementSupport
 import slick.jdbc.meta.MTable
-import slick.jdbc.{JdbcCapabilities, JdbcProfile}
+import slick.jdbc.{InsertBuilderResult, JdbcCapabilities, JdbcProfile}
 import slick.lifted.{ForeignKey, PrimaryKey}
 import slick.util.QueryInterpolator.queryInterpolator
 
-import java.sql.{Blob, PreparedStatement, ResultSet, Time}
+import java.sql.*
 import java.util.UUID
 import javax.sql.rowset.serial.SerialBlob
 import scala.concurrent.ExecutionContext
@@ -23,7 +24,7 @@ import scala.concurrent.ExecutionContext
   * capabilities. It provides a foundation for using Slick with DuckDB
   * databases.
   *
-  * DuckDB is an in-process SQL OLAP database management system that is designed
+  * DuckDB is an in-process SQL OLAP database management system designed
   * to be fast and efficient for analytical queries.
   */
 trait DuckDBProfile extends JdbcProfile with MultipleRowsPerStatementSupport {
@@ -47,12 +48,6 @@ trait DuckDBProfile extends JdbcProfile with MultipleRowsPerStatementSupport {
       // The `O.AutoInc` column option doesn't work because DuckDB's JDBC doesn't fully
       // implement the key generation or metadata generation Slick expects
       JdbcCapabilities.forceInsert,
-
-      // Slick creates MERGE statements for upserts, but DuckDB doesn't support MERGE statements.
-      // Since DuckDB supports INSERT ... ON CONFLICT, a workaround might be possible, but
-      // likely requires modifying the query compilation in Slick.
-      JdbcCapabilities.insertOrUpdate,
-      JdbcCapabilities.insertOrUpdateWithPrimaryKeyOnly,
 
       // Slick queries can be configured to return values such as the insert key using
       // the `returning` method. However, the DuckDB JDBC driver doesn't implement the
@@ -275,7 +270,7 @@ trait DuckDBProfile extends JdbcProfile with MultipleRowsPerStatementSupport {
   class DuckDBColumnDDLBuilder(column: FieldSymbol, table: Table[?])
       extends ColumnDDLBuilder(column) {
 
-    lazy val backingSequenceName: String =
+    private lazy val backingSequenceName: String =
       getBackingSequenceName(table.tableName, column.name)
 
     override protected def appendOptions(sb: StringBuilder): Unit = {
@@ -285,6 +280,33 @@ trait DuckDBProfile extends JdbcProfile with MultipleRowsPerStatementSupport {
       if (notNull) sb append " NOT NULL"
       if (primaryKey) sb append " PRIMARY KEY"
       if (unique) sb append " UNIQUE"
+    }
+  }
+
+  // We need to override base UpsertBuilder, because it's implemented using `MERGE` which DuckDB doesn't support.
+  override def createUpsertBuilder(node: Insert): InsertBuilder = new DuckDBUpsertBuilder(node)
+
+  class DuckDBUpsertBuilder(insert: Insert) extends UpsertBuilder(insert) {
+    override def buildInsert: InsertBuilderResult = {
+      if (pkNames.isEmpty) {
+        throw new SlickException("Primary key required for insertOrUpdate")
+      }
+      val pkCols = pkNames.mkString(", ")
+      val updateAssignments = softNames
+        .map(fs => s"$fs = EXCLUDED.$fs")
+        .mkString(", ")
+      val conflictAction = if (updateAssignments.isEmpty) "DO NOTHING" else "DO UPDATE SET " + updateAssignments
+      val insertSql =
+           s"""insert into $tableName ${allNames.mkString("(", ", ", ")")}
+           |values $allVars
+           |on conflict ($pkCols)
+           |$conflictAction
+           |""".stripMargin.replaceAll("\n", " ")
+      new InsertBuilderResult(
+        table,
+        insertSql,
+        allFields
+      )
     }
   }
 }
