@@ -22,6 +22,7 @@ org.duckdb.DuckDBPreparedStatement.getUpdateCountInternal
     sqlite also doesn't have alter statement, but it validates keys only at insert time.
   - missing duckdb jdbc driver option for `setBlob` --> workaround
   - missing duckdb jdbc driver implementation for getTypeInfo, getUDTs
+  - insertOrUpdateAll test: some jdbc drives (like the one for MySQL) count updates to a row as 2 affected rows for some reason. DuckDB doesn't
 
 - Varchar length is not enforced -- docs recommend using check constraints instead.
   TODO: automatically convert slick length requirements to a check constraint

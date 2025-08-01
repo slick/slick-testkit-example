@@ -295,18 +295,29 @@ trait DuckDBProfile extends JdbcProfile with MultipleRowsPerStatementSupport {
       val updateAssignments = softNames
         .map(fs => s"$fs = EXCLUDED.$fs")
         .mkString(", ")
-      val conflictAction = if (updateAssignments.isEmpty) "DO NOTHING" else "DO UPDATE SET " + updateAssignments
+      val conflictAction = if (updateAssignments.isEmpty) "do nothing" else "do update set " + updateAssignments
       val insertSql =
            s"""insert into $tableName ${allNames.mkString("(", ", ", ")")}
            |values $allVars
            |on conflict ($pkCols)
            |$conflictAction
            |""".stripMargin.replaceAll("\n", " ")
-      new InsertBuilderResult(
-        table,
-        insertSql,
-        allFields
-      )
+      new InsertBuilderResult(table, insertSql, allFields) {
+        override def buildMultiRowInsert(size: Int): String = {
+          // Generate placeholders per row (e.g., `(?, ?, ?)` with allVars)
+          val rowPlaceholder = allVars
+          // Create placeholders for all rows
+          val multiRowPlaceholder = List.fill(size)(rowPlaceholder).mkString(", ")
+
+          // Generate the multi-row insert SQL
+          s"""insert into $tableName ${allNames.mkString("(", ", ", ")")}
+             |values $multiRowPlaceholder
+             |on conflict ($pkCols)
+             |$conflictAction
+             |""".stripMargin.replaceAll("\n", " ")
+        }
+
+      }
     }
   }
 }
