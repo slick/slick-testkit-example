@@ -14,8 +14,8 @@ trait DuckDBQueryBuilderComponent {
      * either provides behavior incompatible with DuckDB or doesn't provide an
      * implementation.
      */
-    class DuckDBQueryBuilder(val profile: JdbcProfile)(n: Node, state: CompilerState)
-      extends profile.QueryBuilder(n, state) {
+    class DuckDBQueryBuilder(n: Node, state: CompilerState)
+      extends self.QueryBuilder(n, state) {
 
       override protected val concatOperator: Option[String]                   = Some("||")
       override protected val quotedJdbcFns: Option[Seq[Library.JdbcFunction]] =
