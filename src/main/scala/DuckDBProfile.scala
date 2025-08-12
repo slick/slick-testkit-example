@@ -1,4 +1,4 @@
-package slick.examples.testkit
+package duckdbslick
 
 import slick.SlickException
 import slick.ast.*

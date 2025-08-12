@@ -1,17 +1,8 @@
 package slick.examples.testkit
 
-import com.typesafe.slick.testkit.tests.{
-  ForeignKeyTest,
-  InsertTest,
-  JdbcMetaTest,
-  PlainSQLTest
-}
-import com.typesafe.slick.testkit.util.{
-  ExternalJdbcTestDB,
-  ProfileTest,
-  TestDB,
-  Testkit
-}
+import com.typesafe.slick.testkit.tests.{ForeignKeyTest, InsertTest, JdbcMetaTest, PlainSQLTest}
+import com.typesafe.slick.testkit.util.{ExternalJdbcTestDB, ProfileTest, TestDB, Testkit}
+import duckdbslick.DuckDBProfile
 import org.junit.runner.RunWith
 import slick.basic.Capability
 
