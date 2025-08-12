@@ -1,5 +1,6 @@
 package duckdbslick
 
+import builders.DuckDBQueryBuilderComponent
 import slick.SlickException
 import slick.ast.*
 import slick.ast.ColumnOption.AutoInc
@@ -27,7 +28,11 @@ import scala.concurrent.ExecutionContext
   * DuckDB is an in-process SQL OLAP database management system designed
   * to be fast and efficient for analytical queries.
   */
-trait DuckDBProfile extends JdbcProfile with MultipleRowsPerStatementSupport {
+trait DuckDBProfile
+  extends JdbcProfile
+    with MultipleRowsPerStatementSupport
+    with DuckDBQueryBuilderComponent
+{
 
   override def defaultTables(implicit
       ec: ExecutionContext
@@ -149,55 +154,7 @@ trait DuckDBProfile extends JdbcProfile with MultipleRowsPerStatementSupport {
       n: Node,
       state: CompilerState
   ): DuckDBQueryBuilder =
-    new DuckDBQueryBuilder(n, state)
-
-  class DuckDBQueryBuilder(tree: Node, state: CompilerState)
-      extends QueryBuilder(tree, state) {
-    override protected val concatOperator: Option[String]                   = Some("||")
-    override protected val quotedJdbcFns: Option[Seq[Library.JdbcFunction]] =
-      Some(Seq.empty)
-
-    override def expr(n: Node): Unit = n match {
-      case Library.IfNull(ch, d)            => b"ifnull($ch, $d)"
-      case Library.Length(ch)               => b"length($ch)"
-      case Library.Database()               => b"current_database()"
-      case Library.User()                   => b"current_user()"
-      case Library.Substring(n, start, end) =>
-        val startNode  =
-          QueryParameter.constOp[Int]("+")(_ + _)(start, LiteralNode(1).infer())
-        val lengthNode = QueryParameter.constOp[Int]("-")(_ - _)(end, start)
-        b"substring($n, $startNode, $lengthNode)"
-      case Library.Substring(n, start)      =>
-        val startNode =
-          QueryParameter.constOp[Int]("+")(_ + _)(start, LiteralNode(1).infer())
-        b"substring($n, $startNode)"
-      case Library.IndexOf(n, str)          => b"strpos($n, $str) - 1"
-
-      // Since the DuckDB dialect is widely compatible with Postgres SQL by design,
-      // the following function mappings are taken directly from the Postgres Profile.
-      case Library.UCase(ch)                        => b"upper($ch)"
-      case Library.LCase(ch)                        => b"lower($ch)"
-      case Library.NextValue(SequenceNode(name))    => b"nextval('$name')"
-      case Library.CurrentValue(SequenceNode(name)) => b"currval('$name')"
-      case Library.CurrentDate()                    => b"current_date"
-      case Library.CurrentTime()                    => b"current_time"
-
-      case _ => super.expr(n)
-    }
-
-    // DuckDB supports limit and offset clauses that are more modern than the SQL 2008 standard
-    // implemented in the super method.
-    override protected def buildFetchOffsetClause(
-        fetch: Option[Node],
-        offset: Option[Node]
-    ): Unit =
-      (fetch, offset) match {
-        case (Some(t), Some(d)) => b"\nlimit $t offset $d"
-        case (Some(t), None)    => b"\nlimit $t"
-        case (None, Some(d))    => b"\noffset $d"
-        case _                  => ()
-      }
-  }
+    new DuckDBQueryBuilder(this)(n, state)
 
   override def createTableDDLBuilder(table: Table[?]): DuckDBTableDDLBuilder =
     new DuckDBTableDDLBuilder(table)
