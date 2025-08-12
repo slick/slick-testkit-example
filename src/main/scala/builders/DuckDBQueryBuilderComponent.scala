@@ -69,5 +69,4 @@ trait DuckDBQueryBuilderComponent {
         }
     }
 
-  }
 }
