@@ -1,23 +1,23 @@
 package duckdbslick
 
 import builders.DuckDBQueryBuilderComponent
+import duckdbslick.DuckDBProfile.getBackingSequenceName
 import slick.SlickException
 import slick.ast.*
 import slick.ast.ColumnOption.AutoInc
 import slick.basic.Capability
 import slick.compiler.CompilerState
 import slick.dbio.DBIO
-import slick.examples.testkit.DuckDBProfile.getBackingSequenceName
 import slick.jdbc.JdbcActionComponent.MultipleRowsPerStatementSupport
 import slick.jdbc.meta.MTable
 import slick.jdbc.{InsertBuilderResult, JdbcCapabilities, JdbcProfile}
 import slick.lifted.{ForeignKey, PrimaryKey}
-import slick.util.QueryInterpolator.queryInterpolator
 
 import java.sql.*
 import java.util.UUID
 import javax.sql.rowset.serial.SerialBlob
 import scala.concurrent.ExecutionContext
+import scala.language.implicitConversions
 
 /** Slick profile for DuckDB.
   *
@@ -52,7 +52,7 @@ trait DuckDBProfile
 
       // The `O.AutoInc` column option doesn't work because DuckDB's JDBC doesn't fully
       // implement the key generation or metadata generation Slick expects
-      JdbcCapabilities.forceInsert,
+      //JdbcCapabilities.forceInsert,
 
       // Slick queries can be configured to return values such as the insert key using
       // the `returning` method. However, the DuckDB JDBC driver doesn't implement the
@@ -74,7 +74,6 @@ trait DuckDBProfile
     *   - Support for DuckDB-specific query features
     */
   override val api: DuckDBApi = new DuckDBApi
-
   class DuckDBApi extends JdbcAPI {
     // DuckDB-specific API methods can be added here
   }
@@ -151,10 +150,10 @@ trait DuckDBProfile
   }
 
   override def createQueryBuilder(
-      n: Node,
-      state: CompilerState
-  ): DuckDBQueryBuilder =
-    new DuckDBQueryBuilder(this)(n, state)
+                                   n: Node,
+                                   state: CompilerState
+                                 ): DuckDBQueryBuilder =
+    new DuckDBQueryBuilder(n, state)
 
   override def createTableDDLBuilder(table: Table[?]): DuckDBTableDDLBuilder =
     new DuckDBTableDDLBuilder(table)
