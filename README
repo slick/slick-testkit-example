@@ -34,3 +34,45 @@ org.duckdb.DuckDBPreparedStatement.getUpdateCountInternal
 
 - TODO: select a license
 - TODO: write an actual Readme
+
+
+
+## Documentation on approach
+
+Go to JdbcStatementBuilderComponent
+
+go through overridable attribute by attribute
+
+
+
+val scalarFrom
+Some databases require a FROM clause when selecting a scalar.
+DuckDB doesn't as it follows PostgreSQL syntax here.
+
+CheckInsertOrUpdateBuilder & UpdateInsertBuilder
+These two builders are only used when insertOrUpdate is emulated on the client side.
+InsertOrUpdate emulation is basically doing UPDATE WHERE CONDITION first and then INSERT ... WHERE NOT EXISTS (SELECT 1 from table where condition)
+One can do this client side or transactionally on the server side.
+Server side emulation is faster but may still fail due to concurrent updates.
+Postgres driver for example does this server side.
+The scala doc says that when doing client side, the two Builders would need to be used.
+For DuckDB we don't need to use client side emulation, because we can either implement server side emulation or a native upsert.
+
+UpsertBuilder
+This one is complicated.
+MySQL driver implements it natively by using a similar INSERT ON DUPLICATE as opposed to DuckDBs INSERT ON CONFLICT syntax.
+The Postgres driver implements the server side emulation. The pg-slick external driver has its own native upsert implementation.
+An additional complication here is auto-incremental columns, especially auto-incremental primary keys
+
+
+  // Create the different builders -- these methods should be overridden by profiles as needed
+  def createQueryBuilder(n: Node, state: CompilerState): QueryBuilder = new QueryBuilder(n, state)
+  def createInsertBuilder(node: Insert): InsertBuilder = new InsertBuilder(node)
+  def createUpsertBuilder(node: Insert): InsertBuilder = new UpsertBuilder(node)
+  def createCheckInsertBuilder(node: Insert): InsertBuilder = new CheckInsertBuilder(node)
+  def createUpdateInsertBuilder(node: Insert): InsertBuilder = new UpdateInsertBuilder(node)
+  def createTableDDLBuilder(table: Table[?]): TableDDLBuilder = new TableDDLBuilder(table)
+  def createColumnDDLBuilder(column: FieldSymbol, table: Table[?]): ColumnDDLBuilder = new ColumnDDLBuilder(column)
+  def createSequenceDDLBuilder(seq: Sequence[?]): SequenceDDLBuilder = new SequenceDDLBuilder(seq)
+
+
