@@ -1,7 +1,7 @@
 package builders
 
 import slick.SlickException
-import slick.ast.*
+import slick.ast.Insert
 import slick.jdbc.{InsertBuilderResult, JdbcProfile}
 
 trait DuckDBUpsertBuilderComponent {

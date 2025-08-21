@@ -1,14 +1,13 @@
 package duckdbslick
 
 import builders.{DuckDBColumnDDLBuilderComponent, DuckDBQueryBuilderComponent, DuckDBTableDDLBuilderComponent, DuckDBUpsertBuilderComponent}
-import slick.SlickException
 import slick.ast.*
 import slick.basic.Capability
 import slick.compiler.CompilerState
 import slick.dbio.DBIO
 import slick.jdbc.JdbcActionComponent.MultipleRowsPerStatementSupport
 import slick.jdbc.meta.MTable
-import slick.jdbc.{InsertBuilderResult, JdbcCapabilities, JdbcProfile}
+import slick.jdbc.{JdbcCapabilities, JdbcProfile}
 
 import java.sql.*
 import java.util.UUID
@@ -163,7 +162,6 @@ trait DuckDBProfile
   ): DuckDBColumnDDLBuilder =
     new DuckDBColumnDDLBuilder(column, table)
 
-  // We need to override base UpsertBuilder, because it's implemented using `MERGE` which DuckDB doesn't support.
   override def createUpsertBuilder(node: Insert): InsertBuilder =
     new DuckDBUpsertBuilder(node)
 }
