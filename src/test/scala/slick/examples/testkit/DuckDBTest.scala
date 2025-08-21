@@ -1,7 +1,7 @@
 package slick.examples.testkit
 
 import com.typesafe.slick.testkit.tests.{ForeignKeyTest, InsertTest, JdbcMetaTest, PlainSQLTest}
-import com.typesafe.slick.testkit.util.{ExternalJdbcTestDB, ProfileTest, TestDB, Testkit}
+import com.typesafe.slick.testkit.util.{AsyncTest, ExternalJdbcTestDB, ProfileTest, TestDB, Testkit}
 import duckdbslick.DuckDBProfile
 import org.junit.runner.RunWith
 import slick.basic.Capability
@@ -14,7 +14,7 @@ class DuckDBTest extends ProfileTest(DuckDBTest.tdb) {
     // classOf[com.typesafe.slick.testkit.tests.<class>]
   )
 
-  override lazy val tests =
+  override lazy val tests: Seq[Class[? <: AsyncTest[? >: Null <: TestDB]]] =
     super.tests
       .filterNot(disabled.contains)
       .map {
