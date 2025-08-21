@@ -1,17 +1,14 @@
 package duckdbslick
 
-import builders.DuckDBQueryBuilderComponent
-import duckdbslick.DuckDBProfile.getBackingSequenceName
+import builders.{DuckDBColumnDDLBuilderComponent, DuckDBQueryBuilderComponent, DuckDBTableDDLBuilderComponent}
 import slick.SlickException
 import slick.ast.*
-import slick.ast.ColumnOption.AutoInc
 import slick.basic.Capability
 import slick.compiler.CompilerState
 import slick.dbio.DBIO
 import slick.jdbc.JdbcActionComponent.MultipleRowsPerStatementSupport
 import slick.jdbc.meta.MTable
 import slick.jdbc.{InsertBuilderResult, JdbcCapabilities, JdbcProfile}
-import slick.lifted.{ForeignKey, PrimaryKey}
 
 import java.sql.*
 import java.util.UUID
@@ -25,14 +22,15 @@ import scala.language.implicitConversions
   * capabilities. It provides a foundation for using Slick with DuckDB
   * databases.
   *
-  * DuckDB is an in-process SQL OLAP database management system designed
-  * to be fast and efficient for analytical queries.
+  * DuckDB is an in-process SQL OLAP database management system designed to be
+  * fast and efficient for analytical queries.
   */
 trait DuckDBProfile
-  extends JdbcProfile
+    extends JdbcProfile
     with MultipleRowsPerStatementSupport
     with DuckDBQueryBuilderComponent
-{
+    with DuckDBTableDDLBuilderComponent
+    with DuckDBColumnDDLBuilderComponent {
 
   override def defaultTables(implicit
       ec: ExecutionContext
@@ -52,7 +50,7 @@ trait DuckDBProfile
 
       // The `O.AutoInc` column option doesn't work because DuckDB's JDBC doesn't fully
       // implement the key generation or metadata generation Slick expects
-      //JdbcCapabilities.forceInsert,
+      // JdbcCapabilities.forceInsert,
 
       // Slick queries can be configured to return values such as the insert key using
       // the `returning` method. However, the DuckDB JDBC driver doesn't implement the
@@ -150,72 +148,13 @@ trait DuckDBProfile
   }
 
   override def createQueryBuilder(
-                                   n: Node,
-                                   state: CompilerState
-                                 ): DuckDBQueryBuilder =
+      n: Node,
+      state: CompilerState
+  ): DuckDBQueryBuilder =
     new DuckDBQueryBuilder(n, state)
 
   override def createTableDDLBuilder(table: Table[?]): DuckDBTableDDLBuilder =
     new DuckDBTableDDLBuilder(table)
-
-  class DuckDBTableDDLBuilder(table: Table[?]) extends TableDDLBuilder(table) {
-    // DuckDB doesn't support `ALTER TABLE` statements for primary and foreign key constraints.
-    // The key constraints must be provided on table creation. Here we handle it in the `addTableOptions`
-    // method instead.
-    override val foreignKeys: Nil.type = Nil
-    override val primaryKeys: Nil.type = Nil
-
-    private val autoIncCols = table.create_*.filter(_.options.contains(AutoInc))
-
-    // TODO: create Sequence with RelationalComponent.Sequence and createSequenceDDLBUilder
-    private def createSequencesForAutoInc: Iterable[String] = autoIncCols.map {
-      col =>
-        val seqName = getBackingSequenceName(table.tableName, col.name)
-        s"create sequence if not exists $seqName"
-    }
-
-    override def createPhase1: Iterable[String] = {
-      createSequencesForAutoInc ++ super.createPhase1
-    }
-
-    override def createIfNotExistsPhase: Iterable[String] = {
-      createSequencesForAutoInc ++ super.createIfNotExistsPhase
-    }
-
-    override def addTableOptions(sb: StringBuilder): Unit = {
-      for (pk <- table.primaryKeys) {
-        sb append ","
-        addPrimaryKey(pk, sb)
-      }
-      for (fk <- table.foreignKeys) {
-        sb append ","
-        addForeignKey(fk, sb)
-      }
-    }
-
-    override def addPrimaryKey(pk: PrimaryKey, sb: StringBuilder): Unit = {
-      sb append "primary key("
-      addPrimaryKeyColumnList(pk.columns, sb, tableNode.tableName)
-      sb append ")"
-    }
-
-    override def addForeignKey(fk: ForeignKey, sb: StringBuilder): Unit = {
-      sb append "foreign key("
-      addForeignKeyColumnList(
-        fk.linearizedSourceColumns,
-        sb,
-        tableNode.tableName
-      )
-      sb append ") references " append quoteTableName(fk.targetTable) append "("
-      addForeignKeyColumnList(
-        fk.linearizedTargetColumnsForOriginalTargetTable,
-        sb,
-        fk.targetTable.tableName
-      )
-      sb append ") on update " append fk.onUpdate.action
-      sb append " on delete " append fk.onDelete.action
-    }
-  }
 
   override def createColumnDDLBuilder(
       column: FieldSymbol,
@@ -223,37 +162,24 @@ trait DuckDBProfile
   ): DuckDBColumnDDLBuilder =
     new DuckDBColumnDDLBuilder(column, table)
 
-  class DuckDBColumnDDLBuilder(column: FieldSymbol, table: Table[?])
-      extends ColumnDDLBuilder(column) {
-
-    private lazy val backingSequenceName: String =
-      getBackingSequenceName(table.tableName, column.name)
-
-    override protected def appendOptions(sb: StringBuilder): Unit = {
-      if (autoIncrement)
-        sb append " DEFAULT " append "nextval('" append backingSequenceName append "')"
-      if (defaultLiteral ne null) sb append " DEFAULT " append defaultLiteral
-      if (notNull) sb append " NOT NULL"
-      if (primaryKey) sb append " PRIMARY KEY"
-      if (unique) sb append " UNIQUE"
-    }
-  }
-
   // We need to override base UpsertBuilder, because it's implemented using `MERGE` which DuckDB doesn't support.
-  override def createUpsertBuilder(node: Insert): InsertBuilder = new DuckDBUpsertBuilder(node)
+  override def createUpsertBuilder(node: Insert): InsertBuilder =
+    new DuckDBUpsertBuilder(node)
 
   class DuckDBUpsertBuilder(insert: Insert) extends UpsertBuilder(insert) {
     override def buildInsert: InsertBuilderResult = {
       if (pkNames.isEmpty) {
         throw new SlickException("Primary key required for insertOrUpdate")
       }
-      val pkCols = pkNames.mkString(", ")
+      val pkCols            = pkNames.mkString(", ")
       val updateAssignments = softNames
         .map(fs => s"$fs = EXCLUDED.$fs")
         .mkString(", ")
-      val conflictAction = if (updateAssignments.isEmpty) "do nothing" else "do update set " + updateAssignments
-      val insertSql =
-           s"""insert into $tableName ${allNames.mkString("(", ", ", ")")}
+      val conflictAction    =
+        if (updateAssignments.isEmpty) "do nothing"
+        else "do update set " + updateAssignments
+      val insertSql         =
+        s"""insert into $tableName ${allNames.mkString("(", ", ", ")")}
            |values $allVars
            |on conflict ($pkCols)
            |$conflictAction
@@ -261,9 +187,10 @@ trait DuckDBProfile
       new InsertBuilderResult(table, insertSql, allFields) {
         override def buildMultiRowInsert(size: Int): String = {
           // Generate placeholders per row (e.g., `(?, ?, ?)` with allVars)
-          val rowPlaceholder = allVars
+          val rowPlaceholder      = allVars
           // Create placeholders for all rows
-          val multiRowPlaceholder = List.fill(size)(rowPlaceholder).mkString(", ")
+          val multiRowPlaceholder =
+            List.fill(size)(rowPlaceholder).mkString(", ")
 
           // Generate the multi-row insert SQL
           s"""insert into $tableName ${allNames.mkString("(", ", ", ")")}
@@ -278,9 +205,4 @@ trait DuckDBProfile
   }
 }
 
-object DuckDBProfile extends DuckDBProfile {
-  private def getBackingSequenceName(
-      tableName: String,
-      columnName: String
-  ): String = s"${tableName}_${columnName}_seq"
-}
+object DuckDBProfile extends DuckDBProfile
