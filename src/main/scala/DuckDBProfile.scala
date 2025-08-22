@@ -13,6 +13,7 @@ import slick.dbio.DBIO
 import slick.jdbc.JdbcActionComponent.MultipleRowsPerStatementSupport
 import slick.jdbc.meta.MTable
 import slick.jdbc.{JdbcCapabilities, JdbcProfile}
+import slick.relational.RelationalCapabilities
 
 import java.sql.*
 import java.util.UUID
@@ -44,6 +45,7 @@ trait DuckDBProfile
   }
 
   override protected def computeCapabilities: Set[Capability] = {
+
     val unsupportedCapabilities = Set(
       // Definitely not supported by DuckDB
       JdbcCapabilities.mutable,   // The result type of DuckDB's JDBC driver is immutable
@@ -53,18 +55,20 @@ trait DuckDBProfile
       // Requires missing `DuckDBDatabaseMetaData.getImportedKeys` driver implementation.
       JdbcCapabilities.createModel,
 
-      // The `O.AutoInc` column option doesn't work because DuckDB's JDBC doesn't fully
-      // implement the key generation or metadata generation Slick expects
-      // JdbcCapabilities.forceInsert,
-
       // Slick queries can be configured to return values such as the insert key using
       // the `returning` method. However, the DuckDB JDBC driver doesn't implement the
       // necessary `prepareStatement` methods on the `DuckDBConnection` class.
       // As a result, `returning` cannot be used with DuckDB at all.
       JdbcCapabilities.returnInsertKey,
       JdbcCapabilities.returnMultipleInsertKey,
-      JdbcCapabilities.returnInsertOther
+      JdbcCapabilities.returnInsertOther,
+
+      // As an embedded database, DuckDB doesn't have a built-in concept of users.
+      // Consequently, a `current_user()` function is not provided.
+      RelationalCapabilities.functionUser
     )
+
+    // DuckDB supports all capabilities from `slick.sql.SqlCapabilities`; therefore, it's not visible here.
     super.computeCapabilities -- unsupportedCapabilities
   }
 
