@@ -1,6 +1,11 @@
 package duckdbslick
 
-import builders.{DuckDBColumnDDLBuilderComponent, DuckDBQueryBuilderComponent, DuckDBTableDDLBuilderComponent, DuckDBUpsertBuilderComponent}
+import builders.{
+  DuckDBColumnDDLBuilderComponent,
+  DuckDBQueryBuilderComponent,
+  DuckDBTableDDLBuilderComponent,
+  DuckDBUpsertBuilderComponent
+}
 import slick.ast.*
 import slick.basic.Capability
 import slick.compiler.CompilerState

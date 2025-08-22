@@ -1,17 +1,17 @@
 package builders
 
 import builders.DuckDBColumnDDLBuilderComponent.getBackingSequenceName
-import slick.jdbc.JdbcProfile
 import slick.ast.FieldSymbol
+import slick.jdbc.JdbcProfile
 
 trait DuckDBColumnDDLBuilderComponent {
   self: JdbcProfile =>
 
   /** Builder for the column definition parts of DDL statements.
-   *
-   * Customizes how column options are appended to the SQL statement,
-   * particularly for auto-increment columns which require a backing sequence.
-   */
+    *
+    * Customizes how column options are appended to the SQL statement,
+    * particularly for auto-increment columns which require a backing sequence.
+    */
   class DuckDBColumnDDLBuilder(column: FieldSymbol, table: Table[?])
       extends ColumnDDLBuilder(column) {
 

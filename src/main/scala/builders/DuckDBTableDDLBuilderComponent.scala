@@ -17,7 +17,6 @@ trait DuckDBTableDDLBuilderComponent {
     *      table and in a separate step altering the table to add constraints;
     *      for DuckDB the key constraints have to be included in the table
     *      creation, because there isn't any option to add them later.
-   *
     *   2. Auto-increment requires creating a backing sequence manually (as
     *      opposed to `SERIAL` in Postgres)
     */
@@ -30,9 +29,11 @@ trait DuckDBTableDDLBuilderComponent {
 
     private val autoIncCols = table.create_*.filter(_.options.contains(AutoInc))
 
-    override def createPhase1: Iterable[String] = createSequencesBackingAutoIncColumns ++ super.createPhase1
+    override def createPhase1: Iterable[String] =
+      createSequencesBackingAutoIncColumns ++ super.createPhase1
 
-    override def dropPhase2: Iterable[String] = super.dropPhase2 ++ dropSequencesBackingAutoIncColumns
+    override def dropPhase2: Iterable[String] =
+      super.dropPhase2 ++ dropSequencesBackingAutoIncColumns
 
     // TODO: create Sequence with RelationalComponent.Sequence and createSequenceDDLBUilder
     private def createSequencesBackingAutoIncColumns: Iterable[String] =

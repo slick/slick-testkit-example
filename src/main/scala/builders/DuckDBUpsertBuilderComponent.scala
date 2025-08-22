@@ -8,10 +8,11 @@ trait DuckDBUpsertBuilderComponent {
   self: JdbcProfile =>
 
   /** Builder for UPSERT statements.
-   *
-   * We need to override base UpsertBuilder, because it's implemented using `MERGE` which DuckDB doesn't support.
-   * This implementation uses DuckDB's `INSERT ... ON CONFLICT` syntax instead.
-   */
+    *
+    * We need to override base UpsertBuilder, because it's implemented using
+    * `MERGE` which DuckDB doesn't support. This implementation uses DuckDB's
+    * `INSERT ... ON CONFLICT` syntax instead.
+    */
   class DuckDBUpsertBuilder(insert: Insert) extends UpsertBuilder(insert) {
     override def buildInsert: InsertBuilderResult = {
       if (pkNames.isEmpty) {

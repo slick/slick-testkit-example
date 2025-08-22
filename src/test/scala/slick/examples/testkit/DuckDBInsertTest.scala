@@ -17,10 +17,10 @@ class DuckDBInsertTest extends InsertTest {
 
   override def testInsertOrUpdateAll = {
     class T(tag: Tag) extends Table[(Int, String)](tag, "insert_or_update") {
-      def id = column[Int]("id", O.PrimaryKey)
+      def id   = column[Int]("id", O.PrimaryKey)
       def name = column[String]("name")
-      def * = (id, name)
-      def ins = (id, name)
+      def *    = (id, name)
+      def ins  = (id, name)
     }
     val ts = TableQuery[T]
     def prepare = DBIO.seq(ts.schema.create, ts ++= Seq((1, "a"), (2, "b")))
@@ -32,27 +32,36 @@ class DuckDBInsertTest extends InsertTest {
         // Maybe this is because they count an update as 1 delete operation and 1 insert operation.
         // The default Slick tests assume this behavior.
         // DuckDB counts an update as only one affected row, hence the override.
-        _ <- ts.insertOrUpdateAll(Seq((3, "c"), (1, "d"))).map(_.foreach(_ shouldBe 2))
-        _ <- ts.sortBy(_.id).result.map(_ shouldBe Seq((1, "d"), (2, "b"), (3, "c")))
-      } yield ()
-    } else {
-      for {
-        _ <- prepare
         _ <- ts.insertOrUpdateAll(Seq((3, "c"), (1, "d")))
+               .map(_.foreach(_ shouldBe 2))
+        _ <- ts.sortBy(_.id)
+               .result
+               .map(_ shouldBe Seq((1, "d"), (2, "b"), (3, "c")))
       } yield ()
-    }.asTry.map {
-      case Failure(exception) => exception.isInstanceOf[SlickException] shouldBe true
-      case _ => throw new RuntimeException("Should insertOrUpdateAll is not supported for this profile.")
-    }
+    } else
+      {
+        for {
+          _ <- prepare
+          _ <- ts.insertOrUpdateAll(Seq((3, "c"), (1, "d")))
+        } yield ()
+      }.asTry.map {
+        case Failure(exception) =>
+          exception.isInstanceOf[SlickException] shouldBe true
+        case _                  =>
+          throw new RuntimeException(
+            "Should insertOrUpdateAll is not supported for this profile."
+          )
+      }
   }
 
-  override def testInsertOrUpdatePlainWithFuncDefinedPK: DBIOAction[Unit, NoStream, Effect.All] = {
+  override def testInsertOrUpdatePlainWithFuncDefinedPK
+      : DBIOAction[Unit, NoStream, Effect.All] = {
     class T(tag: Tag) extends Table[(Int, String)](tag, "t_merge3") {
-      def id = column[Int]("id")
+      def id   = column[Int]("id")
       def name = column[String]("name")
-      def * = (id, name)
-      def ins = (id, name)
-      def pk = primaryKey("t_merge_pk_a", id)
+      def *    = (id, name)
+      def ins  = (id, name)
+      def pk   = primaryKey("t_merge_pk_a", id)
     }
     val ts = TableQuery[T]
 
@@ -61,7 +70,8 @@ class DuckDBInsertTest extends InsertTest {
       _ <- ts ++= Seq((1, "a"), (2, "b"))
       _ <- ts.insertOrUpdate((3, "c")).map(_ shouldBe 1)
       _ <- ts.insertOrUpdate((1, "d")).map(_ shouldBe 1)
-      _ <- ts.sortBy(_.id).result.map(_ shouldBe Seq((1, "d"), (2, "b"), (3, "c")))
+      _ <-
+        ts.sortBy(_.id).result.map(_ shouldBe Seq((1, "d"), (2, "b"), (3, "c")))
     } yield ()
   }
 }
