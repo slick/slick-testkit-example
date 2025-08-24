@@ -1,4 +1,4 @@
-package builders
+package components
 
 import slick.SlickException
 import slick.ast.Insert

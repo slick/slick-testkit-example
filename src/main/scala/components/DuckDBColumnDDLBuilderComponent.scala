@@ -1,6 +1,6 @@
-package builders
+package components
 
-import builders.DuckDBColumnDDLBuilderComponent.getBackingSequenceName
+import components.DuckDBColumnDDLBuilderComponent.getBackingSequenceName
 import slick.ast.FieldSymbol
 import slick.jdbc.JdbcProfile
 

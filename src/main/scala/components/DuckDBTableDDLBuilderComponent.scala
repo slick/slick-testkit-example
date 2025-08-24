@@ -1,6 +1,6 @@
-package builders
+package components
 
-import builders.DuckDBTableDDLBuilderComponent.getBackingSequenceName
+import components.DuckDBTableDDLBuilderComponent.getBackingSequenceName
 import slick.ast.ColumnOption.AutoInc
 import slick.jdbc.JdbcProfile
 import slick.lifted.{ForeignKey, PrimaryKey}

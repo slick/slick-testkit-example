@@ -1,4 +1,4 @@
-package builders
+package components
 
 import slick.ast.*
 import slick.compiler.CompilerState
