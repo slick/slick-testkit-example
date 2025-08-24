@@ -100,7 +100,7 @@ trait DuckDBProfile
 
     override val blobJdbcType: BlobJdbcType = new DuckDBBlobJdbcType
     private class DuckDBBlobJdbcType extends super.BlobJdbcType {
-      // The DuckDB JDBC driver doesn't support Blobs, because the
+      // The DuckDB JDBC driver doesn't support Blobs because the
       // `DuckDBPreparedStatement.setBlob` is not implemented.
       // The workaround is to treat Blobs as serialized ByteArrays instead.
       override def sqlType: Int                                            = java.sql.Types.BINARY
