@@ -23,7 +23,7 @@ trait DuckDBTableDDLBuilderComponent {
   class DuckDBTableDDLBuilder(table: Table[?]) extends TableDDLBuilder(table) {
 
     // Setting the {foreign, primary}Keys to Nil makes overriding the `create*` phases easier.
-    // We can simply add a step and delegate back to the parent implementation, e.g. createPhase1.
+    // We can simply add a step and delegate back to the parent implementation, e.g., createPhase1.
     override val foreignKeys: Nil.type = Nil
     override val primaryKeys: Nil.type = Nil
 
