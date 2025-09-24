@@ -14,7 +14,7 @@ class UtilityFunctionsTest extends AnyFunSuiteLike {
   private val expectedTableName = "table_name"
 
   private val singleForeignKeyReference = quotedKeyVariations.view.mapValues(quotedKeys =>
-    s"""foreign key$quotedKeys references $expectedTableName$quotedKeys""")
+    s"""foreign key$quotedKeys references "$expectedTableName"$quotedKeys""")
 
   private val multipleForeignKeyReferences = singleForeignKeyReference.view.mapValues(singleReference =>
     s"$singleReference, $singleReference")

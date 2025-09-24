@@ -23,6 +23,7 @@ org.duckdb.DuckDBPreparedStatement.getUpdateCountInternal
   - missing duckdb jdbc driver option for `setBlob` --> workaround
   - missing duckdb jdbc driver implementation for getTypeInfo, getUDTs
   - insertOrUpdateAll test: some jdbc drives (like the one for MySQL) count updates to a row as 2 affected rows for some reason. DuckDB doesn't
+  - wrong creation order when concating schemas with ++; probably due to not using alter table for constraints. --> override DDL.++ method?
 
 - Varchar length is not enforced -- docs recommend using check constraints instead.
   TODO: automatically convert slick length requirements to a check constraint

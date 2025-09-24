@@ -29,7 +29,13 @@ trait DuckDBProfile
     with DuckDBQueryBuilderComponent
     with DuckDBTableDDLBuilderComponent
     with DuckDBColumnDDLBuilderComponent
-    with DuckDBUpsertBuilderComponent {
+    with DuckDBUpsertBuilderComponent
+    with ReorderingSchemaActionExtensionMethods {
+
+  override def createSchemaActionExtensionMethods(
+      schema: DDL
+  ): SchemaActionExtensionMethods =
+    new ReorderingSchemaActionExtensionMethodsImpl(schema)
 
   override def defaultTables(implicit
       ec: ExecutionContext
