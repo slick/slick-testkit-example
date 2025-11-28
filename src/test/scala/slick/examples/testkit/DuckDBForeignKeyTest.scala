@@ -27,8 +27,7 @@ class DuckDBForeignKeyTest extends ForeignKeyTest {
 
     for {
       _ <- tdb.assertNotTablesExist("categories", "posts")
-      _ <- (categories.schema ++ posts.schema).create
-      // _ <- (posts.schema ++ categories.schema).create
+      _ <- (posts.schema ++ categories.schema).create
       _ <- tdb.assertTablesExist("categories", "posts")
       _ <- categories ++= Seq(
              (1, "Scala"),
@@ -65,6 +64,9 @@ class DuckDBForeignKeyTest extends ForeignKeyTest {
     } yield ()
   }
 
+  // DuckDB documentation states that foreign keys refer to a primary key or unique constraint from another table.
+  // The original test used a foreign key that referred to two columns on which an index was defined but neither a
+  // primary key nor a uniqueness constraint.
   override def testMultiColumn = {
     class A(tag: Tag) extends Table[(Int, Int, String)](tag, "a") {
       def k1  = column[Int]("k1")
@@ -79,10 +81,17 @@ class DuckDBForeignKeyTest extends ForeignKeyTest {
     lazy val as = TableQuery[A]
 
     class B(tag: Tag) extends Table[(Int, Int, String)](tag, "b") {
-      def f1    = column[Int]("f1")
-      def f2    = column[Int]("f2")
-      def s     = column[String]("s")
-      def *     = (f1, f2, s)
+      def f1 = column[Int]("f1")
+      def f2 = column[Int]("f2")
+      def s  = column[String]("s")
+      def *  = (f1, f2, s)
+
+      // The test is overridden precisely for adding a primary key in the next line.
+      // In DuckDB, it's not enough that the foreign key reference from table A targets
+      // the index bIdx1 here--even if it is set to unique = true.
+      // The foreign key reference must be either a uniqueness constraint or a primary key.
+      // By adding the primary key below, we make this a valid DuckDB DDL.
+      def pk    = primaryKey("b_pk", (f1, f2))
       def bIdx1 = index("b_idx1", (f1, f2), unique = true)
     }
     lazy val bs = TableQuery[B]

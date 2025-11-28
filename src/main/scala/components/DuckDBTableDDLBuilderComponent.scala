@@ -35,7 +35,7 @@ trait DuckDBTableDDLBuilderComponent {
     override def dropPhase2: Iterable[String] =
       super.dropPhase2 ++ dropSequencesBackingAutoIncColumns
 
-    // TODO: create Sequence with RelationalComponent.Sequence and createSequenceDDLBUilder
+    // TODO: create Sequence with RelationalComponent.Sequence and createSequenceDDLBuilder
     private def createSequencesBackingAutoIncColumns: Iterable[String] =
       autoIncCols.map { col =>
         val seqName = getBackingSequenceName(table.tableName, col.name)
