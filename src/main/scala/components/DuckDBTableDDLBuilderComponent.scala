@@ -89,7 +89,7 @@ trait DuckDBTableDDLBuilderComponent {
 
 }
 
-// TODO: ColumnDDLBuilder has a similar function --> move to utils or change sequnce creation
+// TODO: ColumnDDLBuilder has a similar function --> move to utils or change sequence creation
 object DuckDBTableDDLBuilderComponent {
   private def getBackingSequenceName(
       tableName: String,
