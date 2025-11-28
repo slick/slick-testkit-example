@@ -2,7 +2,7 @@ package components
 
 import slick.dbio.{Effect, NoStream}
 import slick.jdbc.{JdbcBackend, JdbcProfile}
-import utils.UtilityFunctions.orderCreateStatements
+import utils.UtilityFunctions.orderDdlStatements
 
 trait ReorderingSchemaActionExtensionMethods {
   self: JdbcProfile =>
@@ -18,7 +18,7 @@ trait ReorderingSchemaActionExtensionMethods {
             ctx: JdbcBackend#JdbcActionContext,
             sql: Vector[String]
         ): Unit = {
-          val reorderedSql = orderCreateStatements(sql)
+          val reorderedSql = orderDdlStatements(sql)
           for (s <- reorderedSql)
             ctx.session.withPreparedStatement(s)(_.execute)
         }
