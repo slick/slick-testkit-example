@@ -24,7 +24,7 @@ logBuffered := false
 run / fork := true
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-s", "-a")
-libraryDependencies += "com.typesafe.slick" %% "slick-testkit" % "3.6.0"
+libraryDependencies += "com.typesafe.slick" %% "slick-testkit" % "3.6.1"
 libraryDependencies += "org.scala-lang"      % "scala-reflect" % scalaVersion.value
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
