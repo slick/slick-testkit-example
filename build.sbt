@@ -31,3 +31,5 @@ libraryDependencies += "org.scala-lang"      % "scala-reflect" % scalaVersion.va
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
 ThisBuild / githubWorkflowBuildPreamble +=
   WorkflowStep.Run(List("docker compose up -d"), name = Some("Start database"))
+
+licenses := List("AGPL-3.0" -> url("https://www.gnu.org/licenses/agpl-3.0.en.html"))
