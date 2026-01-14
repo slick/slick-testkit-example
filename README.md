@@ -7,8 +7,6 @@ TODO: version of DuckDB, what's supported syntax wise
 TODO: what's not supported, e.g.:
   - blob limitation: handled as byte array, so caution advised for byte array sizing; watch memory consumption and performance
   - check constraints are not supported
-  - 
-
 
 
 ## How to use it
