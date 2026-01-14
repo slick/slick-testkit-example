@@ -1,5 +1,19 @@
-This sample project is part of the Slick documentation.
-See https://scala-slick.org/docs/ for details.
+
+# Slick-DuckDB
+
+Slick extension for DuckDB.
+
+## Currently supported
+
+TODO: version of DuckDB, what's supported syntax wise
+
+
+## How to use it
+
+TODO: how to install
+
+TODO: an example how to set up database connection and query
+
 
 
 Things that might be missing for DuckDB:
@@ -34,7 +48,6 @@ org.duckdb.DuckDBPreparedStatement.getUpdateCountInternal
 
 
 
-- TODO: select a license
 - TODO: write an actual Readme
 
 
