@@ -56,18 +56,6 @@ class DuckDBInsertTest extends InsertTest {
       }
   }
 
-  // Upsert functionality is implemented using an INSERT ... ON CONFLICT DO UPDATE statement.
-  // This is more performant and, most importantly, atomic compared to the alternatives.
-  // Unlike MySQL, DuckDB doesn't support multiple conflict targets and therefore fails the parent test
-  // because the test codifies the expectation that insertOrUpdate handles conflict on both the primary key and the unique column.
-  override def testInertOrUpdateWithAutoIncAndUniqueColumn()
-      : DBIOAction[Unit, NoStream, Effect.Schema & Effect.Write & Effect.Read] =
-    DBIO.successful(()): DBIOAction[
-      Unit,
-      NoStream,
-      Effect.Schema & Effect.Write & Effect.Read
-    ]
-
   // The parent test hardcodes an SQL statement with syntax that is invalid for DuckDB.
   // Instead of creating the `CTABLE` and `DTABLE` with a hardcoded SQL statement,
   // the test is adapted to use the native Slick way: `{c, d}.schema.create`
@@ -126,5 +114,5 @@ class DuckDBInsertTest extends InsertTest {
         allD.toSet shouldBe Set(D(1, 0, 1), D(2, 0, 2), D(3, 0, 2))
         allF.toSet shouldBe Set(F(1), F(2))
       }
-    }
+  }
 }
