@@ -3,9 +3,12 @@
 
 Slick extension for DuckDB.
 
-## Currently supported
-
 TODO: version of DuckDB, what's supported syntax wise
+TODO: what's not supported, e.g.:
+  - blob limitation: handled as byte array, so caution advised for byte array sizing; watch memory consumption and performance
+  - check constraints are not supported
+  - 
+
 
 
 ## How to use it
@@ -13,56 +16,13 @@ TODO: version of DuckDB, what's supported syntax wise
 TODO: how to install
 
 TODO: an example how to set up database connection and query
+TODO: Database creation factories
+TODO: in-memory tests, but also file-based db tests
+
+TODO: Implement DatabaseMetaData.getTypeInfo endpoint in DuckDB JDBC Driver
+TODO: "Check constraints" support
 
 
-
-Things that might be missing for DuckDB:
-- foreign and primary key constraints:
-  - dropping them
-  - generally all "ALTER TABLE" statements in JdbcStatementBuilderComponent must be looked at
-- in-memory tests, but also file based db tests
-- Database creation factories
-
-- Implement DatabaseMetaData.getTypeInfo endpoint in DuckDB JDBC Driver
-- TODO "Check constraints" support
-
-- DuckDB returns -1 when no changes where made (like CREATE TABLE); slick assumes 0
-org.duckdb.DuckDBPreparedStatement.getUpdateCountInternal
-
-- summary of the main issues:
-  - alter table for key constraints not allowed
-  - duckdb validates key constraints at `create table` time, meaning the order of the table creation matters (since also
-    the constraints cannot be added after table has been created due to missing alter table)
-    sqlite also doesn't have alter statement, but it validates keys only at insert time.
-  - missing duckdb jdbc driver option for `setBlob` --> workaround
-  - missing duckdb jdbc driver implementation for getTypeInfo, getUDTs
-  - insertOrUpdateAll test: some jdbc drives (like the one for MySQL) count updates to a row as 2 affected rows for some reason. DuckDB doesn't
-  - wrong creation order when concatenating schemas with ++; probably due to not using alter table for constraints. --> override DDL.++ method?
-        - fun fact: indexes can simply be put last, because foreign keys cannot reference them; duckdb requires referencing pKs or uniqueness constraints
-
-- Varchar length is not enforced -- docs recommend using check constraints instead.
-  TODO: automatically convert slick length requirements to a check constraint
-
-- TODO: UpsertBuilder, ModelBuilder, QueryBuilder and other things from Postgres profile; understand it and see
-        if necessary for DuckDB
-
-
-
-- TODO: write an actual Readme
-
-
-
-## Documentation on approach
-
-Go to JdbcStatementBuilderComponent
-
-go through overridable attribute by attribute
-
-
-
-val scalarFrom
-Some databases require a FROM clause when selecting a scalar.
-DuckDB doesn't as it follows PostgreSQL syntax here.
 
 CheckInsertOrUpdateBuilder & UpdateInsertBuilder
 These two builders are only used when insertOrUpdate is emulated on the client side.
@@ -78,16 +38,4 @@ This one is complicated.
 MySQL driver implements it natively by using a similar INSERT ON DUPLICATE as opposed to DuckDBs INSERT ON CONFLICT syntax.
 The Postgres driver implements the server side emulation. The pg-slick external driver has its own native upsert implementation.
 An additional complication here is auto-incremental columns, especially auto-incremental primary keys
-
-
-  // Create the different builders -- these methods should be overridden by profiles as needed
-  def createQueryBuilder(n: Node, state: CompilerState): QueryBuilder = new QueryBuilder(n, state)
-  def createInsertBuilder(node: Insert): InsertBuilder = new InsertBuilder(node)
-  def createUpsertBuilder(node: Insert): InsertBuilder = new UpsertBuilder(node)
-  def createCheckInsertBuilder(node: Insert): InsertBuilder = new CheckInsertBuilder(node)
-  def createUpdateInsertBuilder(node: Insert): InsertBuilder = new UpdateInsertBuilder(node)
-  def createTableDDLBuilder(table: Table[?]): TableDDLBuilder = new TableDDLBuilder(table)
-  def createColumnDDLBuilder(column: FieldSymbol, table: Table[?]): ColumnDDLBuilder = new ColumnDDLBuilder(column)
-  def createSequenceDDLBuilder(seq: Sequence[?]): SequenceDDLBuilder = new SequenceDDLBuilder(seq)
-
 

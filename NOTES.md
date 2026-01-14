@@ -41,6 +41,11 @@ This holds for a lot of commonly used databases.
 DuckDB unfortunately does not calculate the affected rows this way, so that an upsert counts as one affected row.
 I overrode the tests to reflect the behavior of DuckDB (see the `testInsertOrUpdateAll` test method in [DuckDBInsertTest.scala](src/test/scala/slick/examples/testkit/DuckDBInsertTest.scala)).
 
+## DDL statement execution returns -1 instead of 0
+
+The Slick [testkit](https://github.com/slick/slick-testkit-example) assumes that DDL operations which don't affect any rows return 0.
+The DuckDB JDBC driver unfortunately returns -1, so the tests had to be overridden.
+See `DuckDBPreparedStatement.getUpdateCountInternal` for reference.
 
 ## Varchar length is not enforced
 
