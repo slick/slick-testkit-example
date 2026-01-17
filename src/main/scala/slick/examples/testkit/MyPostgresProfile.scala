@@ -75,7 +75,7 @@ trait MyPostgresProfile
     override def createColumnBuilder(
         tableBuilder: TableBuilder,
         meta: MColumn
-    ): ColumnBuilder =
+    ): ColumnBuilder                                          =
       new ColumnBuilder(tableBuilder, meta) {
         val NumericPattern               =
           "^['(]?(-?[0-9]+\\.?[0-9]*)[')]?(?:::(?:numeric|bigint|integer))?".r
@@ -133,7 +133,7 @@ trait MyPostgresProfile
     override def createIndexBuilder(
         tableBuilder: TableBuilder,
         meta: Seq[MIndexInfo]
-    ): IndexBuilder =
+    ): IndexBuilder                                           =
       new IndexBuilder(tableBuilder, meta) {
         override def columns =
           super.columns.map(_.stripPrefix("\"").stripSuffix("\""))
@@ -155,7 +155,7 @@ trait MyPostgresProfile
   override def createQueryBuilder(
       n: Node,
       state: CompilerState
-  ): MyQueryBuilder =
+  ): MyQueryBuilder                                                      =
     new MyQueryBuilder(n, state)
   override def createUpsertBuilder(node: Insert): InsertBuilder          =
     new MyUpsertBuilder(node)
@@ -164,7 +164,7 @@ trait MyPostgresProfile
   override def createColumnDDLBuilder(
       column: FieldSymbol,
       table: Table[?]
-  ): MyColumnDDLBuilder =
+  ): MyColumnDDLBuilder                                                  =
     new MyColumnDDLBuilder(column)
   override protected lazy val useServerSideUpsert                        = true
   override protected lazy val useTransactionForUpsert                    = true

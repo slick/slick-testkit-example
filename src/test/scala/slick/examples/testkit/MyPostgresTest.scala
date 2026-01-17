@@ -24,7 +24,7 @@ object MyPostgresTest {
     val profile: MyPostgresProfile.type = MyPostgresProfile
     override def localTables(implicit
         ec: ExecutionContext
-    ): DBIO[Vector[String]] =
+    ): DBIO[Vector[String]]             =
       ResultSetAction[(String, String, String, String)](
         _.conn.getMetaData.getTables("", "public", null, null)
       ).map { ts =>
@@ -32,7 +32,7 @@ object MyPostgresTest {
       }
     override def localSequences(implicit
         ec: ExecutionContext
-    ): DBIO[Vector[String]] =
+    ): DBIO[Vector[String]]             =
       ResultSetAction[(String, String, String, String)](
         _.conn.getMetaData.getTables("", "public", null, null)
       ).map { ts =>
