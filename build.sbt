@@ -11,7 +11,7 @@ mergifyExtraConditions := Seq(
 
 libraryDependencies ++= List(
   "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
-  "ch.qos.logback" % "logback-classic" % "1.5.28" % Test,
+  "ch.qos.logback" % "logback-classic" % "1.5.29" % Test,
   "org.postgresql" % "postgresql"      % "42.7.4" % Test
 )
 
