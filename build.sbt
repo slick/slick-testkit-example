@@ -1,6 +1,6 @@
 import _root_.io.github.nafg.mergify.dsl.*
 
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.8.3"
 ThisBuild / scalacOptions += "-Xsource:3"
 
 mergifyExtraConditions := Seq(
