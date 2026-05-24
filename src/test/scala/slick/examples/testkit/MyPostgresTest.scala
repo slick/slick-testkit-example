@@ -25,19 +25,17 @@ object MyPostgresTest {
     override def localTables(implicit
         ec: ExecutionContext
     ): DBIO[Vector[String]]             =
-      ResultSetAction[(String, String, String, String)] { ctx =>
-        val schema = Option(ctx.conn.getSchema).orNull
-        ctx.conn.getMetaData.getTables("", schema, null, null)
-      }.map { ts =>
+      ResultSetAction[(String, String, String, String)](
+        ctx => ctx.conn.getMetaData.getTables("", ctx.conn.getSchema, null, null)
+      ).map { ts =>
         ts.filter(_._4.toUpperCase == "TABLE").map(_._3).sorted
       }
     override def localSequences(implicit
         ec: ExecutionContext
     ): DBIO[Vector[String]]             =
-      ResultSetAction[(String, String, String, String)] { ctx =>
-        val schema = Option(ctx.conn.getSchema).orNull
-        ctx.conn.getMetaData.getTables("", schema, null, null)
-      }.map { ts =>
+      ResultSetAction[(String, String, String, String)](
+        ctx => ctx.conn.getMetaData.getTables("", ctx.conn.getSchema, null, null)
+      ).map { ts =>
         ts.filter(_._4.toUpperCase == "SEQUENCE").map(_._3).sorted
       }
     override def capabilities           =
