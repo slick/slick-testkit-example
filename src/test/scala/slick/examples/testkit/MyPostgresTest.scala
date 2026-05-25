@@ -26,7 +26,7 @@ object MyPostgresTest {
         ec: ExecutionContext
     ): DBIO[Vector[String]]             =
       ResultSetAction[(String, String, String, String)](
-        ctx => ctx.conn.getMetaData.getTables("", ctx.conn.getSchema, null, null)
+        _.conn.getMetaData.getTables(null, null, null, null)
       ).map { ts =>
         ts.filter(_._4.toUpperCase == "TABLE").map(_._3).sorted
       }
@@ -34,7 +34,7 @@ object MyPostgresTest {
         ec: ExecutionContext
     ): DBIO[Vector[String]]             =
       ResultSetAction[(String, String, String, String)](
-        ctx => ctx.conn.getMetaData.getTables("", ctx.conn.getSchema, null, null)
+        _.conn.getMetaData.getTables(null, null, null, null)
       ).map { ts =>
         ts.filter(_._4.toUpperCase == "SEQUENCE").map(_._3).sorted
       }
