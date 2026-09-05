@@ -1,6 +1,6 @@
 import _root_.io.github.nafg.mergify.dsl.*
 
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.9.0"
 ThisBuild / scalacOptions += "-Xsource:3"
 
 mergifyExtraConditions := Seq(
@@ -10,8 +10,8 @@ mergifyExtraConditions := Seq(
 )
 
 libraryDependencies ++= List(
-  "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
-  "ch.qos.logback" % "logback-classic" % "1.6.3"  % Test,
+  "com.github.sbt" % "junit-interface" % "0.13.3"  % Test,
+  "ch.qos.logback" % "logback-classic" % "1.6.3"   % Test,
   "org.postgresql" % "postgresql"      % "42.7.13" % Test
 )
 
