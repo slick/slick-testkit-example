@@ -1,7 +1,6 @@
 import _root_.io.github.nafg.mergify.dsl.*
 
 ThisBuild / scalaVersion := "3.10.0"
-ThisBuild / scalacOptions += "-Xsource:3"
 
 mergifyExtraConditions := Seq(
   (Attr.Author :== "scala-steward") ||
@@ -25,7 +24,6 @@ run / fork := true
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-s", "-a")
 libraryDependencies += "com.typesafe.slick" %% "slick-testkit" % "3.6.1"
-libraryDependencies += "org.scala-lang"      % "scala-reflect" % scalaVersion.value
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 ThisBuild / githubWorkflowBuildPreamble +=
