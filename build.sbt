@@ -30,3 +30,9 @@ libraryDependencies += "org.scala-lang"      % "scala-reflect" % scalaVersion.va
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 ThisBuild / githubWorkflowBuildPreamble +=
   WorkflowStep.Run(List("docker compose up -d"), name = Some("Start database"))
+
+// In sbt 2, `test` only reruns tests affected by changes since the cached last run,
+// so on CI it can skip the whole suite.
+ThisBuild / githubWorkflowBuild := Seq(
+  WorkflowStep.Sbt(List("testFull"), name = Some("Build project"))
+)

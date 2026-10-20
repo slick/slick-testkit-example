@@ -49,7 +49,7 @@ jobs:
         run: sbt '++ ${{ matrix.scala }}; githubWorkflowCheck'
 
       - name: Build project
-        run: sbt '++ ${{ matrix.scala }}; test'
+        run: sbt '++ ${{ matrix.scala }}; testFull'
 
       - name: Compress target directories
         run: tar cf targets.tar target/out/jvm/scala-2.13.18/slick-testkit-example project/target
