@@ -34,3 +34,5 @@ ThisBuild / githubWorkflowBuildPreamble +=
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(List("testFull"), name = Some("Build project"))
 )
+
+ThisBuild / githubWorkflowPublishTargetBranches := Seq()
