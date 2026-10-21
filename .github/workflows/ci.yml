@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [2.13.18]
+        scala: [3.10.0]
         java: [temurin@17]
     runs-on: ${{ matrix.os }}
     steps:
@@ -52,7 +52,7 @@ jobs:
         run: sbt '++ ${{ matrix.scala }}; testFull'
 
       - name: Compress target directories
-        run: tar cf targets.tar target/out/jvm/scala-2.13.18/slick-testkit-example project/target
+        run: tar cf targets.tar target/out/jvm/scala-3.10.0/slick-testkit-example project/target
 
       - name: Upload target directories
         uses: actions/upload-artifact@v7
@@ -67,7 +67,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [2.13.18]
+        scala: [3.10.0]
         java: [temurin@17]
     runs-on: ${{ matrix.os }}
     steps:
@@ -87,12 +87,12 @@ jobs:
       - name: Setup sbt
         uses: sbt/setup-sbt@v1
 
-      - name: Download target directories (2.13.18)
+      - name: Download target directories (3.10.0)
         uses: actions/download-artifact@v8
         with:
-          name: target-${{ matrix.os }}-2.13.18-${{ matrix.java }}
+          name: target-${{ matrix.os }}-3.10.0-${{ matrix.java }}
 
-      - name: Inflate target directories (2.13.18)
+      - name: Inflate target directories (3.10.0)
         run: |
           tar xf targets.tar
           rm targets.tar
