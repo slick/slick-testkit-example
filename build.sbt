@@ -1,7 +1,6 @@
 import _root_.io.github.nafg.mergify.dsl.*
 
-ThisBuild / scalaVersion := "2.13.18"
-ThisBuild / scalacOptions += "-Xsource:3"
+ThisBuild / scalaVersion := "3.10.0"
 
 mergifyExtraConditions := Seq(
   (Attr.Author :== "scala-steward") ||
@@ -10,8 +9,8 @@ mergifyExtraConditions := Seq(
 )
 
 libraryDependencies ++= List(
-  "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
-  "ch.qos.logback" % "logback-classic" % "1.6.3"  % Test,
+  "com.github.sbt" % "junit-interface" % "0.13.3"  % Test,
+  "ch.qos.logback" % "logback-classic" % "1.6.3"   % Test,
   "org.postgresql" % "postgresql"      % "42.7.13" % Test
 )
 
@@ -25,7 +24,6 @@ run / fork := true
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-s", "-a")
 libraryDependencies += "com.typesafe.slick" %% "slick-testkit" % "3.6.1"
-libraryDependencies += "org.scala-lang"      % "scala-reflect" % scalaVersion.value
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 ThisBuild / githubWorkflowBuildPreamble +=
