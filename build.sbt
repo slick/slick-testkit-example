@@ -1,6 +1,6 @@
 import _root_.io.github.nafg.mergify.dsl.*
 
-ThisBuild / scalaVersion := "3.10.0"
+ThisBuild / scalaVersion := "3.10.1"
 
 mergifyExtraConditions := Seq(
   (Attr.Author :== "scala-steward") ||
